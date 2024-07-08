@@ -50,3 +50,9 @@ This project involves the following steps:
 2. Install the required packages:
    ```python
    pip install -r requirements.txt
+3. Place the following files in the root directory:
+    `sample_details.csv`
+    `aminoAcidCode_lexicographic_new.txt`
+    `amino_codes.txt`
+
+## Usage
