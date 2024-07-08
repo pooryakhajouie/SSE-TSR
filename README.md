@@ -47,3 +47,6 @@ This project involves the following steps:
    ```bash
    git clone https://github.com/PooryaKhajoui/SSE-TSR.git
    cd SSE-TSR
+2. Install the required packages:
+   ```python
+   pip install -r requirements.txt
