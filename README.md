@@ -56,3 +56,53 @@ This project involves the following steps:
     `amino_codes.txt`
 
 ## Usage
+
+1. Step 1: Retrieve PDB Files
+   Run the script to retrieve PDB files:
+   ```python
+   python src/1_pdb_retrieve.py
+   ```
+   This script requires sample_details.csv, which contains the protein name, chain, and corresponding label.
+
+2. Step 2: Key Generation
+   Generate keys from the Ca atoms of each protein file (pdb file). It also categorizes each key into one of the eighteen secondary structure types.
+   ```python
+   python src/python src/2_keyTransformation1Dand3andHelixSheetNone.py
+   ```
+   This script uses `sample_details.csv`, `aminoAcidCode_lexicographic_new.txt`, and `amino_codes.txt` files.
+
+3. Step 3: Pick out 3D key files
+   Copy 3D keys with specified parameters:
+    ```python
+   python src/3_copy_3Dkeys_theta30_maxdist35_files.py
+   ```
+    
+4. Step 4: Extract Unique Keys
+   Extract unique keys from the dataset:
+   ```python
+   python src/4_extract_unique_keys.py
+   ```
+   
+5. Step 5: Generate Sparse Matrices
+   Generate sparse 2D matrices for each protein:
+   ```python
+   python src/5_generate_sparse_matrices.py
+   ```
+
+6. Step 6: Dataset Preparation
+   Prepare the dataset into training, testing, and validation sets:
+   ```python
+   python src/6_dataset_preparation.py
+   ```
+
+7. Step 7: Protein Classification based on their Secondary Structure information
+   Load the data with data generators, train and evaluate the model:
+   ```python
+   python src/7_secondary_structure_classification.py
+   ```
+This script contains data generators to load the data and train and evaluate the model.
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
