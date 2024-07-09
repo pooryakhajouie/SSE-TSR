@@ -23,12 +23,12 @@ This project is designed for the classification of proteins using the TSR-based 
 This project involves the following steps:
 
 1. Retrieving PDB files from the PDB bank.
-2. Transforming keys from 1D and 3D structures.
+2. Generating 3D keys and categorizing them based on their secondary structure information.
 3. Copying 3D keys with specific parameters.
 4. Extracting unique keys from the dataset.
-5. Generating sparse matrices for each protein.
+5. Generating 2D sparse matrices for each protein.
 6. Preparing the dataset into training, testing, and validation sets.
-7. Training and evaluating a model for secondary structure classification.
+7. Loading, training, and evaluating the model for protein classification using SSE-TSR keys.
 
 ## Prerequisites
 
@@ -45,7 +45,7 @@ This project involves the following steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/PooryaKhajoui/SSE-TSR.git
+   git clone https://github.com/pooryakhajouie/SSE-TSR.git
    cd SSE-TSR
 2. Install the required packages:
    ```python
