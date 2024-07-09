@@ -1,6 +1,6 @@
 # SSE-TSR
 
-This project is designed for secondary structure classification of proteins. The workflow consists of several Python scripts that need to be executed in a specific order, each performing a distinct step in the process. Below is a detailed description of each step and how to use the scripts.
+This project is designed for the classification of proteins using the TSR-based method and the secondary structure information of proteins. The workflow consists of several Python scripts that need to be executed in a specific order, each performing a distinct step in the process. Below is a detailed description of each step and how to use the scripts.
 
 ## Table of Contents
 
@@ -57,7 +57,7 @@ This project involves the following steps:
 
 ## Usage
 
-1. Step 1: Retrieve PDB Files
+### 1. Step 1: Retrieve PDB Files
    Run the script to retrieve PDB files:
    ```python
    python src/1_pdb_retrieve.py
