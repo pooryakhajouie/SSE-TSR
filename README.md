@@ -9,14 +9,13 @@ This project is designed for the classification of proteins using the TSR-based 
 - [Installation](#installation)
 - [Usage](#usage)
   - [Step 1: Retrieve PDB Files](#step-1-retrieve-pdb-files)
-  - [Step 2: Key Transformation](#step-2-key-transformation)
+  - [Step 2: Key Generation](#step-2-key-transformation)
   - [Step 3: Copy 3D Keys](#step-3-copy-3d-keys)
   - [Step 4: Extract Unique Keys](#step-4-extract-unique-keys)
   - [Step 5: Generate Sparse Matrices](#step-5-generate-sparse-matrices)
   - [Step 6: Dataset Preparation](#step-6-dataset-preparation)
-  - [Step 7: Secondary Structure Classification](#step-7-secondary-structure-classification)
+  - [Step 7: Protein Classification](#step-7-secondary-structure-classification)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
