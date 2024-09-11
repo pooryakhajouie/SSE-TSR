@@ -262,56 +262,51 @@ def distClass1D(dist12):
     return classL
 
 # SEPERATE HELIX and SHEET PARTS FOR EACH PROTEIN, SAVE IN A PICKLE FILE
-
 def seperate_helix_sheet_chain(file):
     helix_dict={} #position:chain 
     sheet_dict={} #position:chain
     
-    try:
-        # read file for helix and sheet
-        with open(data_dir+file+'.pdb', 'r') as f:
-            for line in f:
-                #print(line)
-                #line = line.strip().split()
-                if line[0:6].strip()=='HELIX':
-                    serNum=line[7:10].strip()
-                    chain=line[19:20].strip()
-                    start=int(line[21:25].strip())
-                    stop=int(line[33:37].strip())
-                    h_range=list(range(start,stop+1))
-                    for pos in h_range:
-                        pos1 = str(pos)+chain
-                        if pos1 not in helix_dict:
-                            helix_dict[pos1]='HELIX_'+str(serNum)
-                        #else:
-                            #helix_dict[pos1].append('HELIX_'+str(serNum))
-                    #print("\n", line,"\n", chain, start, stop, h_range)
-                if line[0:6].strip()=='SHEET':
-                    serNum=line[7:10].strip()
-                    chain=line[21:22].strip()
-                    start=int(line[22:26].strip())
-                    stop=int(line[33:37].strip())
-                    s_range=list(range(start,stop+1))
+    # read file for helix and sheet
+    with open(data_dir+file+'.pdb', 'r') as f:
+        for line in f:
+            #print(line)
+            #line = line.strip().split()
+            if line[0:6].strip()=='HELIX':
+                serNum=line[7:10].strip()
+                chain=line[19:20].strip()
+                start=int(line[21:25].strip())
+                stop=int(line[33:37].strip())
+                h_range=list(range(start,stop+1))
+                for pos in h_range:
                     pos1 = str(pos)+chain
-                    for pos1 in s_range:
-                        if pos1 not in sheet_dict:
-                            sheet_dict[pos1]='SHEET_'+str(serNum)
-                        #else:
-                            #sheet_dict[pos1].append('SHEET_'+str(serNum)) 
-                    #print("\n", line,"\n", chain, start, stop, h_range)
-        fh=open(data_dir+file+"_helix_dict.pkl","wb")     
-        fs=open(data_dir+file+"_sheet_dict.pkl","wb")     
-        pickle.dump(helix_dict,fh)
-        pickle.dump(sheet_dict,fs)
-        fh.close()
-        fs.close()
-        #print(helix_dict, "\n", sheet_dict, "\n", chains)
-        f.close()
-        print("Helix and Sheet seperation done.")
-    except Exception as e:
-        print(f"Error processing file {file}: {str(e)}")
-        return None
-	
+                    if pos1 not in helix_dict:
+                        helix_dict[pos1]='HELIX_'+str(serNum)
+                    #else:
+                        #helix_dict[pos1].append('HELIX_'+str(serNum))
+                #print("\n", line,"\n", chain, start, stop, h_range)
+            if line[0:6].strip()=='SHEET':
+                serNum=line[7:10].strip()
+                chain=line[21:22].strip()
+                start=int(line[22:26].strip())
+                stop=int(line[33:37].strip())
+                s_range=list(range(start,stop+1))
+                for pos in s_range:
+                    pos1 = str(pos)+chain
+                    if pos1 not in sheet_dict:
+                        sheet_dict[pos1]='SHEET_'+str(serNum)
+                    #else:
+                        #sheet_dict[pos1].append('SHEET_'+str(serNum)) 
+                #print("\n", line,"\n", chain, start, stop, h_range)
+    fh=open(data_dir+file+"_helix_dict.pkl","wb")     
+    fs=open(data_dir+file+"_sheet_dict.pkl","wb")     
+    pickle.dump(helix_dict,fh)
+    pickle.dump(sheet_dict,fs)
+    fh.close()
+    fs.close()
+    #print(helix_dict, "\n", sheet_dict, "\n", chains)
+    f.close()
+    print("Helix and Sheet seperation done.")
+
 # FIND TYPE ASSIGNMENT FOR EACH TRIPLETS (HELIX, SHEET, NONE)
 def determine_type(triplets):
     code=0
@@ -330,8 +325,8 @@ def determine_type(triplets):
             code = '17_3c'
             
     # 3 DIFF h/s/n
-        if(t0.split("_")[0]!=t1.split("_")[0]!=t2.split("_")[0]):
-            code = '18_1a1b1c' # 1a1b1c - all different, I helix, 1 sheet, 1 none		
+    if(t0.split("_")[0]!=t1.split("_")[0]!=t2.split("_")[0]):
+        code = '18_1a1b1c' # 1a1b1c - all different, I helix, 1 sheet, 1 none		
     
     # 3 SAME TYPE, DIFF NUM
     if (t0.split("_")[0]==t1.split("_")[0]==t2.split("_")[0]):
@@ -686,14 +681,8 @@ def parallelcode(fileName, chain):
 def maincode(file): # file is name with prot and chain
     prot = file.split("_")[0]
     chain = file.split("_")[1]
-    result = seperate_helix_sheet_chain(prot) #func call
-    if result is not None:
-        return
-    try:
-        # Continue with the rest of the processing
-        parallelcode(prot, chain)
-    except Exception as e:
-        print(f"Error in parallelcode for file {file}: {str(e)}")
+    seperate_helix_sheet_chain(prot) #func call
+    parallelcode(prot, chain)
 
 num_cores = multiprocessing.cpu_count()
 print("#of cores = ", num_cores)

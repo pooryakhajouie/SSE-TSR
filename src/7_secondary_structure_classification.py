@@ -96,7 +96,7 @@ test_generator = data_generator(npz_dir, batch_size, mode='test')
 
 # Define the neural network model
 model = keras.Sequential([
-   keras.layers.Input(shape=(18, 1472442)),
+   keras.layers.Input(shape=(18, 1472585)),
    keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'),
    keras.layers.BatchNormalization(),
    keras.layers.MaxPooling1D(pool_size=2),
@@ -142,7 +142,7 @@ for _ in range(test_steps_per_epoch):
 conf_mat = confusion_matrix(y_true, y_pred, normalize='true')
 
 # Plot Confusion Matrix as Heatmap
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(10, 8), dpi=300)
 plt.subplot(2, 2, 1)
 plt.plot(h.history['accuracy'], color='blue', label='Training Accuracy')
 plt.plot(h.history['val_accuracy'], color='green', label='Validation Accuracy')
@@ -201,5 +201,5 @@ sns.heatmap(pd.DataFrame(all_metrics, columns=['Precision', 'Recall', 'F1-score'
 
 plt.title('Classification Report')
 plt.tight_layout()
-plt.savefig('results_summary_9k_3rd.png')  # Save the plot to a PNG file
+plt.savefig('results_summary_9k_2nd.png', dpi=300)  # Save the plot to a PNG file
 plt.close()
