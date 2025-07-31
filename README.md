@@ -74,13 +74,13 @@ This project involves the following steps:
 ### 4. Step 4: Generate Sparse Matrices and Prepare Dataset
    Generate sparse matrices for each protein and split the dataset:
    ```python
-   python src/5_generate_sparse_matrices_and_dataset.py
+   python src/4_generate_sparse_matrices_and_dataset.py
    ```
 
 ### 5. Step 5: Protein Classification based on their Secondary Structure information
    Load the data with data generators, train and evaluate the model:
    ```python
-   python src/7_secondary_structure_classification.py
+   python src/5_secondary_structure_classification.py
    ```
 This script contains data generators to load the data and train and evaluate the model.
 
