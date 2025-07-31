@@ -10,12 +10,9 @@ This project is designed for the classification of proteins using the TSR-based 
 - [Usage](#usage)
   - [Step 1: Retrieve PDB Files](#step-1-retrieve-pdb-files)
   - [Step 2: Key Generation](#step-2-key-transformation)
-  - [Step 3: Copy 3D Keys](#step-3-copy-3d-keys)
-  - [Step 4: Extract Unique Keys](#step-4-extract-unique-keys)
-  - [Step 5: Generate Sparse Matrices](#step-5-generate-sparse-matrices)
-  - [Step 6: Dataset Preparation](#step-6-dataset-preparation)
-  - [Step 7: Protein Classification](#step-7-secondary-structure-classification)
-- [Contributing](#contributing)
+  - [Step 3: Extract Unique Keys](#step-3-extract-unique-keys)
+  - [Step 4: Generate Sparse Matrices and Prepare Dataset](#step-4-generate-sparse-matrices-and-prepare-dataset)
+  - [Step 5: Protein Classification](#step-5-secondary-structure-classification)
 
 ## Overview
 
@@ -23,11 +20,9 @@ This project involves the following steps:
 
 1. Retrieving PDB files from the PDB bank.
 2. Generating 3D keys and categorizing them based on their secondary structure information.
-3. Copying 3D keys with specific parameters.
-4. Extracting unique keys from the dataset.
-5. Generating 2D sparse matrices for each protein.
-6. Preparing the dataset into training, testing, and validation sets.
-7. Loading, training, and evaluating the model for protein classification using SSE-TSR keys.
+3. Extracting unique keys from the dataset.
+4. Generating sparse matrices and preparing the dataset.
+5. Loading, training, and evaluating the model for protein classification using SSE-TSR keys.
 
 ## Prerequisites
 
@@ -66,35 +61,23 @@ This project involves the following steps:
 ### 2. Step 2: Key Generation
    Generate keys from the Ca atoms of each protein file (pdb file). It also categorizes each key into one of the eighteen secondary structure types.
    ```python
-   python src/python src/2_keyTransformation1Dand3andHelixSheetNone.py
+   python src/python src/2_keyTransformation1D_3D_HelixSheetNone.py
    ```
    This script uses `sample_details.csv`, `aminoAcidCode_lexicographic_new.txt`, and `amino_codes.txt` files.
-
-### 3. Step 3: Pick out 3D key files
-   Copy 3D keys with specified parameters:
-   ```python
-   python src/3_copy_3Dkeys_theta30_maxdist35_files.py
-   ```
     
-### 4. Step 4: Extract Unique Keys
+### 3. Step 3: Extract Unique Keys
    Extract unique keys from the dataset:
    ```python
-   python src/4_extract_unique_keys.py
+   python src/3_extract_unique_keys.py
    ```
    
-### 5. Step 5: Generate Sparse Matrices
-   Generate sparse 2D matrices for each protein:
+### 4. Step 4: Generate Sparse Matrices and Prepare Dataset
+   Generate sparse matrices for each protein and split the dataset:
    ```python
-   python src/5_generate_sparse_matrices.py
+   python src/5_generate_sparse_matrices_and_dataset.py
    ```
 
-### 6. Step 6: Dataset Preparation
-   Prepare the dataset into training, testing, and validation sets:
-   ```python
-   python src/6_dataset_preparation.py
-   ```
-
-### 7. Step 7: Protein Classification based on their Secondary Structure information
+### 5. Step 5: Protein Classification based on their Secondary Structure information
    Load the data with data generators, train and evaluate the model:
    ```python
    python src/7_secondary_structure_classification.py
