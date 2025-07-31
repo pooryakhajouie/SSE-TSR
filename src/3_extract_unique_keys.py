@@ -33,7 +33,7 @@ def read_3Dkeys_theta30_maxdist35(file_path):
 
 # Define a function to process a single protein
 def process_protein(protein_name, chain_name):
-    file_path = f'Triplet_type/{protein_name}_{chain_name}.3Dkeys_theta30_maxdist35'
+    file_path = f'Dataset/lexicographic/{protein_name}_{chain_name}.3Dkeys_theta30_maxdist35'
     if not os.path.exists(file_path):
         print(f"File not found: {file_path}. Skipping...")
         return []
