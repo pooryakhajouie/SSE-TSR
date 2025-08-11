@@ -75,6 +75,9 @@ Downloads PDBs for the `protein` codes in your CSV and writes a cleaned CSV excl
 # show help
 python src/1_pdb_retrieve.py -h
 
+# required args only
+python src/1_pdb_retrieve.py sample_details.csv Dataset/
+
 # typical run
 python src/1_pdb_retrieve.py sample_details.csv Dataset/ \
   -o sample_details_cleaned.csv -j 16 --overwrite
@@ -96,12 +99,22 @@ python src/1_pdb_retrieve.py sample_details.csv Dataset/ \
 Generates `.3Dkeys_theta30_maxdist35` per protein/chain and assigns one of 18 SS types per key.
 
 ```bash
+# Show help for Step 2
+python src/2_keyTransformation1D_3D_HelixSheetNone.py -h
+
+# required args only
 python src/2_keyTransformation1D_3D_HelixSheetNone.py \
-  --sample-csv sample_details_cleaned.csv \
-  --pdb-dir Dataset/ \
-  --out-dir Triplet_type/ \
-  --amino-lex aminoAcidCode_lexicographic_new.txt \
-  --amino-codes amino_codes.txt
+  sample_details_cleaned.csv \
+  Dataset/ \
+  Triplet_type/
+
+# typical run
+python src/2_keyTransformation1D_3D_HelixSheetNone.py \
+  sample_details_cleaned.csv \
+  Dataset/ \
+  Triplet_type/ \
+  --outputs 3D 1D triplets sequence \
+  -j 16
 ```
 
 > Use the flags your script supports; the example shows typical args.
@@ -119,6 +132,9 @@ Scans the `.3Dkeys…` files and writes a sorted set of unique key IDs.
 ```bash
 # show help
 python src/3_extract_unique_keys.py -h
+
+# required args only
+python src/3_extract_unique_keys.py sample_details_cleaned.csv Triplet_type/
 
 # typical run
 python src/3_extract_unique_keys.py sample_details_cleaned.csv Triplet_type/ \
@@ -138,6 +154,14 @@ Builds a `(types x keys)` sparse matrix per protein/chain and splits into `train
 ```bash
 # show help
 python src/4_generate_sparse_matrices_and_dataset.py -h
+
+# required args only
+python src/4_generate_sparse_matrices_and_dataset.py \
+  sample_details_cleaned.csv \
+  unique_3D_keys.txt \
+  Triplet_type/ \
+  Transformed_sparse_matrices/ \
+  processed_dataset/
 
 # typical run
 python src/4_generate_sparse_matrices_and_dataset.py \
@@ -168,6 +192,9 @@ Trains a Conv1D model on the sparse matrices and evaluates on the test split. Su
 ```bash
 # show help
 python src/5_train_classifier.py -h
+
+# required args only
+python src/5_train_classifier.py processed_dataset/
 
 # auto-detect classes and input shape
 python src/5_train_classifier.py processed_dataset/ \
