@@ -114,6 +114,8 @@ python src/2_keyTransformation1D_3D_HelixSheetNone.py \
   Dataset/ \
   Triplet_type/ \
   --outputs 3D 1D triplets sequence \
+  --protein-col prot_code \
+  --chain-col ch
   -j 16
 ```
 
