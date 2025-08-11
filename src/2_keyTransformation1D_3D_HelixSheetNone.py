@@ -49,21 +49,33 @@ def find_bin(value, bins, inclusive=False):
     return len(bins) + 1
 
 parser = argparse.ArgumentParser(description='Key calculation - 1D to 3D with HELIX/SHEET combination type.')
-parser.add_argument('sample_details', default='sample_details.csv', type=str, help='Enter sample details file name')
-parser.add_argument('data_dir', type=str, help='Enter data dir where pdb files are located')
+parser.add_argument('sample_details', type=str, help='CSV with columns: protein, chain')
+parser.add_argument('data_dir', type=str, help='Directory where PDB files are located')
+parser.add_argument('out_dir', type=str, help='Output directory to write key/sequence files')
 parser.add_argument('--outputs', nargs='*', default=['3D'],
                     choices=['3D', '1D', 'triplets', 'sequence'],
                     help='Output file types to generate: 3D, 1D, triplets, sequence')
+parser.add_argument('--protein-col', default='protein',
+                    help="Column name for protein codes in the CSV (default: 'protein')")
+parser.add_argument('--chain-col', default='chain',
+                    help="Column name for chain IDs in the CSV (default: 'chain')")
+parser.add_argument('-j', '--jobs', type=int, default=os.cpu_count(),
+                    help='Number of parallel workers (default: CPU count)')
 args = parser.parse_args()
 
-data_dir = args.data_dir #'./../Dataset/'
-subdir = data_dir + 'lexicographic/' # output dir
-if not os.path.exists(subdir):
-    os.makedirs(subdir)
+data_dir = args.data_dir
+subdir = args.out_dir
+os.makedirs(subdir, exist_ok=True)
 
-df= pd.read_csv(args.sample_details,sep=',',header=0)
-df = df.fillna('')
-df['protchain'] = df['protein']+'_'+df['chain']
+df = pd.read_csv(args.sample_details, sep=',', header=0).fillna('')
+
+pcol = args.protein_col
+ccol = args.chain_col
+missing = [c for c in (pcol, ccol) if c not in df.columns]
+if missing:
+    raise SystemExit(f"Missing required columns in CSV: {missing}. Available: {list(df.columns)}")
+
+df['protchain'] = df[pcol].astype(str) + '_' + df[ccol].astype(str)
 files = df['protchain'].tolist()
 
 # Theta bin for 3D 
@@ -513,10 +525,9 @@ def maincode(file):  # file is name with prot and chain
     seperate_helix_sheet_chain(prot) #func call
     parallelcode(prot, chain, args.outputs)
 
-num_cores = multiprocessing.cpu_count()
-print("#of cores = ", num_cores)
+num_cores = int(args.jobs or multiprocessing.cpu_count())
+print("# of workers = ", num_cores)
 
-Parallel(n_jobs=num_cores, verbose=50)(delayed(maincode)(fileName)for fileName in files)
-
-print("CODE END\t TOTAL TIME=(min)", np.round((time.time()-start_time)/60,2))
-
+Parallel(n_jobs=num_cores, verbose=50)(
+    delayed(maincode)(fileName) for fileName in files
+)
