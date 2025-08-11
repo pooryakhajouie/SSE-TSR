@@ -1,107 +1,225 @@
 # SSE-TSR
 
-This project is designed for the classification of proteins using the TSR-based method and the secondary structure information of proteins. The workflow consists of several Python scripts that need to be executed in a specific order, each performing a distinct step in the process. Below is a detailed description of each step and how to use the scripts.
+SSE-TSR classifies proteins using TSR-derived keys augmented with secondary structure information. The pipeline:
+
+1. fetches PDBs,
+2. generates per-chain `.3Dkeys…` files (with SS typing),
+3. extracts the set of **unique 3D keys**,
+4. builds **sparse matrices** and prepares the `train/validation/test` dataset,
+5. **trains/evaluates** a CNN classifier (binary or multiclass), printing metrics and saving plots.
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Step 1: Retrieve PDB Files](#step-1-retrieve-pdb-files)
-  - [Step 2: Key Generation](#step-2-key-transformation)
-  - [Step 3: Copy 3D Keys](#step-3-copy-3d-keys)
-  - [Step 4: Extract Unique Keys](#step-4-extract-unique-keys)
-  - [Step 5: Generate Sparse Matrices](#step-5-generate-sparse-matrices)
-  - [Step 6: Dataset Preparation](#step-6-dataset-preparation)
-  - [Step 7: Protein Classification](#step-7-secondary-structure-classification)
-- [Contributing](#contributing)
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+* [Usage](#usage)
+
+  * [Step 1: Retrieve PDB files](#step-1-retrieve-pdb-files)
+  * [Step 2: Generate 3D keys + SS types](#step-2-generate-3d-keys--ss-types)
+  * [Step 3: Extract unique keys](#step-3-extract-unique-keys)
+  * [Step 4: Build sparse matrices + dataset split](#step-4-build-sparse-matrices--dataset-split)
+  * [Step 5: Train & evaluate classifier](#step-5-train--evaluate-classifier)
+* [Notes & Tips](#notes--tips)
+* [Contributing](#contributing)
 
 ## Overview
 
-This project involves the following steps:
+**Inputs**
 
-1. Retrieving PDB files from the PDB bank.
-2. Generating 3D keys and categorizing them based on their secondary structure information.
-3. Copying 3D keys with specific parameters.
-4. Extracting unique keys from the dataset.
-5. Generating 2D sparse matrices for each protein.
-6. Preparing the dataset into training, testing, and validation sets.
-7. Loading, training, and evaluating the model for protein classification using SSE-TSR keys.
+* `sample_details.csv` (or `sample_details_*.csv`): must contain at least `protein`, `chain`, and a class label column (default: `group1`).
+* PDB files (downloaded in Step 1).
+
+**Outputs**
+
+* `.3Dkeys_theta…` per-chain files (Step 2)
+* `unique_3D_keys.txt` (Step 3)
+* `Transformed_sparse_matrices/*.npz` (Step 4)
+* `processed_dataset/{train,validation,test}/class*/…` (Step 4)
+* `secondary_structure_batch_model.h5` and `results_summary.png` (Step 5)
 
 ## Prerequisites
 
-- Python 3.x
-- `pandas`
-- `numpy`
-- `scikit-learn`
-- `tensorflow`
-- `keras`
-- `biopython`
-- Internet connection to retrieve PDB files
+* Python 3.9+
+* Packages:
+
+  * `pandas`, `numpy`, `scikit-learn`, `scipy`
+  * `tensorflow` / `keras`
+  * `matplotlib`, `seaborn`
+  * `joblib`
+* Internet access for PDB download (Step 1)
+
+Install everything via:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/pooryakhajouie/SSE-TSR.git
-   cd SSE-TSR
-2. Install the required packages:
-   ```python
-   pip install -r requirements.txt
-3. Place the following files in the root directory:
-    `sample_details.csv`
-    `aminoAcidCode_lexicographic_new.txt`
-    `amino_codes.txt`
+```bash
+git clone https://github.com/pooryakhajouie/SSE-TSR.git
+cd SSE-TSR
+pip install -r requirements.txt
+```
+
+Make sure your `sample_details.csv` (with `protein,chain,group1` columns) is in the project—or pass its path via CLI where applicable.
 
 ## Usage
 
-### 1. Step 1: Retrieve PDB Files
-   Run the script to retrieve PDB files:
-   ```python
-   python src/1_pdb_retrieve.py
-   ```
-   This script requires sample_details.csv, which contains the protein name, chain, and corresponding label.
+### Step 1: Retrieve PDB files
 
-### 2. Step 2: Key Generation
-   Generate keys from the Ca atoms of each protein file (pdb file). It also categorizes each key into one of the eighteen secondary structure types.
-   ```python
-   python src/python src/2_keyTransformation1Dand3andHelixSheetNone.py
-   ```
-   This script uses `sample_details.csv`, `aminoAcidCode_lexicographic_new.txt`, and `amino_codes.txt` files.
+Downloads PDBs for the `protein` codes in your CSV and writes a cleaned CSV excluding failed downloads.
 
-### 3. Step 3: Pick out 3D key files
-   Copy 3D keys with specified parameters:
-   ```python
-   python src/3_copy_3Dkeys_theta30_maxdist35_files.py
-   ```
-    
-### 4. Step 4: Extract Unique Keys
-   Extract unique keys from the dataset:
-   ```python
-   python src/4_extract_unique_keys.py
-   ```
-   
-### 5. Step 5: Generate Sparse Matrices
-   Generate sparse 2D matrices for each protein:
-   ```python
-   python src/5_generate_sparse_matrices.py
-   ```
+```bash
+# show help
+python src/1_pdb_retrieve.py -h
 
-### 6. Step 6: Dataset Preparation
-   Prepare the dataset into training, testing, and validation sets:
-   ```python
-   python src/6_dataset_preparation.py
-   ```
+# required args only
+python src/1_pdb_retrieve.py sample_details.csv Dataset/
 
-### 7. Step 7: Protein Classification based on their Secondary Structure information
-   Load the data with data generators, train and evaluate the model:
-   ```python
-   python src/7_secondary_structure_classification.py
-   ```
-This script contains data generators to load the data and train and evaluate the model.
+# typical run
+python src/1_pdb_retrieve.py sample_details.csv Dataset/ \
+  -o sample_details_cleaned.csv -j 16 --overwrite
+```
+
+**Inputs**
+
+* `sample_details.csv` with column `protein`.
+
+**Outputs**
+
+* PDBs in `Dataset/`
+* `sample_details_cleaned.csv`
+
+---
+
+### Step 2: Generate 3D keys + SS types
+
+Generates `.3Dkeys_theta30_maxdist35` per protein/chain and assigns one of 18 SS types per key.
+
+```bash
+# Show help for Step 2
+python src/2_keyTransformation1D_3D_HelixSheetNone.py -h
+
+# required args only
+python src/2_keyTransformation1D_3D_HelixSheetNone.py \
+  sample_details_cleaned.csv \
+  Dataset/ \
+  Triplet_type/
+
+# typical run
+python src/2_keyTransformation1D_3D_HelixSheetNone.py \
+  sample_details_cleaned.csv \
+  Dataset/ \
+  Triplet_type/ \
+  --outputs 3D 1D triplets sequence \
+  --protein-col prot_code \
+  --chain-col ch
+  -j 16
+```
+
+> Use the flags your script supports; the example shows typical args.
+
+**Outputs**
+
+* `Triplet_type/{PROT}_{CHAIN}.3Dkeys_theta30_maxdist35`
+
+---
+
+### Step 3: Extract unique keys
+
+Scans the `.3Dkeys…` files and writes a sorted set of unique key IDs.
+
+```bash
+# show help
+python src/3_extract_unique_keys.py -h
+
+# required args only
+python src/3_extract_unique_keys.py sample_details_cleaned.csv Triplet_type/
+
+# typical run
+python src/3_extract_unique_keys.py sample_details_cleaned.csv Triplet_type/ \
+  -o unique_3D_keys.txt -j 16
+```
+
+**Outputs**
+
+* `unique_3D_keys.txt`
+
+---
+
+### Step 4: Build sparse matrices + dataset split
+
+Builds a `(types x keys)` sparse matrix per protein/chain and splits into `train/validation/test` with `class1..classN` folders.
+
+```bash
+# show help
+python src/4_generate_sparse_matrices_and_dataset.py -h
+
+# required args only
+python src/4_generate_sparse_matrices_and_dataset.py \
+  sample_details_cleaned.csv \
+  unique_3D_keys.txt \
+  Triplet_type/ \
+  Transformed_sparse_matrices/ \
+  processed_dataset/
+
+# typical run
+python src/4_generate_sparse_matrices_and_dataset.py \
+  sample_details_cleaned.csv \
+  unique_3D_keys.txt \
+  Triplet_type/ \
+  Transformed_sparse_matrices/ \
+  processed_dataset/ \
+  -j 16 --test-size 0.10 --val-size 0.10
+```
+
+**Key options**
+
+* `--class-col group1` (default) – change if your label column name differs
+* `--filename-template "{protein}_{chain}.3Dkeys_theta30_maxdist35"` (default)
+
+**Outputs**
+
+* `Transformed_sparse_matrices/{PROT}_{CHAIN}_transformed_sparse_matrix.npz`
+* `processed_dataset/{train,validation,test}/class*/…`
+
+---
+
+### Step 5: Train & evaluate classifier
+
+Trains a Conv1D model on the sparse matrices and evaluates on the test split. Supports **binary and multiclass**. Prints the **confusion matrix** (counts + row-normalized) and saves a summary plot with accuracy/loss, confusion heatmap, and ROC curves.
+
+```bash
+# show help
+python src/5_train_classifier.py -h
+
+# required args only
+python src/5_train_classifier.py processed_dataset/
+
+# auto-detect classes and input shape
+python src/5_train_classifier.py processed_dataset/ \
+  --sample-details sample_details_cleaned.csv \
+  --epochs 50 --batch-size 300 --lr 1e-3 \
+  --model-out secondary_structure_batch_model.h5 \
+  --plot-out results_summary.png
+```
+
+**Notes**
+
+* If you know the number of classes: `--num-classes 2` (binary) or e.g. `--num-classes 8`.
+* **ROC/AUC**: binary → one ROC curve using positive class; multiclass → one-vs-rest ROC per class (skips classes absent in test set).
+* Optionally run a sanity-check to ensure CSV labels match folder labels (see script comments).
+
+## Notes & Tips
+
+* **CSV columns**: At minimum, `protein`, `chain`, and a label column (default `group1`). If you change the label column name, pass it via `--class-col` in Step 4; Step 5 can optionally use `--sample-details` for checks.
+* **Class folders**: Step 4 creates `class1..classN` based on sorted unique labels, mapping `label → index (0-based) → class{index+1}`.
+* **Reproducibility**: pass `--random-state` in Step 4 and `--seed` in Step 5.
+* **Performance**: use `-j` to increase parallelism in Steps 1 and 4.
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+PRs are welcome. Please open an issue first to discuss substantial changes.
 
