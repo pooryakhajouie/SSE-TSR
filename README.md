@@ -119,8 +119,6 @@ python src/2_keyTransformation1D_3D_HelixSheetNone.py \
   -j 16
 ```
 
-> Use the flags your script supports; the example shows typical args.
-
 **Outputs**
 
 * `Triplet_type/{PROT}_{CHAIN}.3Dkeys_theta30_maxdist35`
