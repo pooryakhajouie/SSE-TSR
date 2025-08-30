@@ -59,7 +59,7 @@ def main():
     args = parse_args()
 
     # Read mapping CSV
-    with open(args.mapping_csv, "r", newline="") as f:
+    with open(args.sample_details, "r", newline="") as f:
         reader = csv.DictReader(f, delimiter=args.delimiter)
         fieldnames = set(reader.fieldnames or [])
         required = {args.protein_col, args.chain_col}
