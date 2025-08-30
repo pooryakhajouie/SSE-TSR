@@ -119,8 +119,6 @@ python src/2_keyTransformation1D_3D_HelixSheetNone.py \
   -j 16
 ```
 
-> Use the flags your script supports; the example shows typical args.
-
 **Outputs**
 
 * `Triplet_type/{PROT}_{CHAIN}.3Dkeys_theta30_maxdist35`
@@ -210,7 +208,6 @@ python src/5_train_classifier.py processed_dataset/ \
 
 * If you know the number of classes: `--num-classes 2` (binary) or e.g. `--num-classes 8`.
 * **ROC/AUC**: binary → one ROC curve using positive class; multiclass → one-vs-rest ROC per class (skips classes absent in test set).
-* Optionally run a sanity-check to ensure CSV labels match folder labels (see script comments).
 
 ## Notes & Tips
 
